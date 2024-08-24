@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RandomSeat</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5029965399613123"
+     crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        #language-select {
+            margin-bottom: 20px;
+        }
+        #language-select select {
+            padding: 8px 12px;
+            font-size: 1em;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+        #language-select select:focus {
+            border-color: #007BFF;
+        }
+        #instruction-bar {
+            background-color: #007BFF;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: inline-block;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        #instruction-bar:hover {
+            background-color: #0056b3;
+        }
+        #instruction-content {
+            display: none;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: left;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #instruction-content p {
+            margin: 10px 0;
+        }
+        #enterplaces {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #enterplaces label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        #enterplaces input {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #007BFF;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+            max-width: 300px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #enterplaces input:focus {
+            border-color: #0056b3;
+        }
+        #drawnnumbers {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: left;
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        #drawnnumbers p {
+            margin: 8px 0;
+            color: #007BFF;
+        }
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 160px;
+        }
+        #draw-button {
+            background-color: #007BFF;
+        }
+        #draw-button:hover {
+            background-color: #0056b3;
+        }
+        #reset-button {
+            background-color: #dc3545;
+        }
+        #reset-button:hover {
+            background-color: #c82333;
+        }
+        #save-button {
+            background-color: #28a745;
+        }
+        #save-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div id="language-select">
+        <label for="language">Choose Language:</label>
+        <select id="language" onchange="updateLanguage()">
+            <option value="en">English</option>
+            <option value="pl">Polish</option>
+            <option value="de">German</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <!-- Add more language options here -->
+        </select>
+    </div>
+
+    <!-- Instruction Bar -->
+    <div id="instruction-bar" onclick="toggleInstruction()">
+        <strong id="instruction-bar-text">Instructions</strong>
+    </div>
+    <div id="instruction-content">
+        <h2 id="instruction-title">How to Use RandomSeat</h2>
+        <p id="instruction-step1">1. Enter the maximum number of seats in the input box.</p>
+        <p id="instruction-step2">2. Click the "Next Draw" button to draw a seat number. Each drawn seat will be displayed along with the time of the draw.</p>
+        <p id="instruction-step3">3. Once all seats have been drawn, you will see a message indicating that all seats have been drawn.</p>
+        <p id="instruction-step4">4. You can save the results to a CSV file by clicking the "Save Results" button.</p>
+        <p id="instruction-step5">5. To reset and start over, click the "Reset" button.</p>
+    </div>
+
+    <!-- User enters the maximum number of seats -->
+    <div id="enterplaces">
+        <label for="maxSeats" id="max-seats-label">Maximum Number of Seats:</label>
+        <input type="number" id="maxSeats" min="1" placeholder="Enter max number of seats">
+    </div>
+
+    <!-- The numbers drawn will appear here -->
+    <div id="drawnnumbers">
+        <p id="results"></p>
+    </div>
+
+    <!-- Buttons for drawing numbers, resetting, and saving results --> 
+    <div class="button-container">
+        <button onclick="nextDraw()" id="draw-button">Next Draw</button>
+        <button onclick="resetDraw()" id="reset-button">Reset</button>
+        <button onclick="saveToCSV()" id="save-button">Save Results</button>
+    </div>
+
+    <script>
+        let availableSeats = []; // Array to store all available seats
+        let drawnSeats = []; // Array to store drawn seats
+
+        function toggleInstruction() {
+            const content = document.getElementById('instruction-content');
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function nextDraw() {
+            const maxSeats = parseInt(document.getElementById('maxSeats').value);
+            const resultsElement = document.getElementById('results');
+
+            // Basic validation
+            if (isNaN(maxSeats) || maxSeats < 1) {
+                resultsElement.textContent = "Please enter a valid maximum number of seats.";
+                return;
+            }
+
+            if (availableSeats.length === 0) {
+                // Initialize the available seats
+                availableSeats = Array.from({ length: maxSeats }, (_, i) => i + 1);
+                drawnSeats = []; // Clear previously drawn seats
+                resultsElement.textContent = ''; // Clear previous results
+            }
+
+            if (availableSeats.length === 0) {
+                resultsElement.textContent = "All seats have been drawn.";
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableSeats.length);
+            const randomSeat = availableSeats.splice(randomIndex, 1)[0]; // Remove and get the seat
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+
+            const resultEntry = `Seat Number: ${randomSeat} (Drawn at ${timeString})`;
+            drawnSeats.push([randomSeat, timeString]); // Add to drawnSeats array
+            resultsElement.innerHTML += `<p>${resultEntry}</p>`;
+
+            if (availableSeats.length === 0) {
+                resultsElement.innerHTML += `<p>All seats have been drawn.</p>`;
+            }
+        }
+
+        function resetDraw() {
+            document.getElementById('maxSeats').value = '';
+            document.getElementById('results').textContent = '';
+            drawnSeats = [];
+            availableSeats = [];
+        }
+
+        function saveToCSV() {
+            if (drawnSeats.length === 0) {
+                alert("No results to save.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Seat Number,Time\n"; // CSV header
+
+            drawnSeats.forEach(row => {
+                csvContent += row.join(",") + "\n";
+            });
+
+            // Create a downloadable link and simulate a click to save the file
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "seat_draw_results.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function updateLanguage() {
+            const language = document.getElementById('language').value;
+            const elements = {
+                "instruction-bar-text": {
+                    "en": "Instructions",
+                    "pl": "Instrukcje",
+                    "de": "Anleitung",
+                    "fr": "Instructions",
+                    "es": "Instrucciones"
+                },
+                "instruction-title": {
+                    "en": "How to Use RandomSeat",
+                    "pl": "Jak korzystać z RandomSeat",
+                    "de": "So verwenden Sie RandomSeat",
+                    "fr": "Comment utiliser RandomSeat",
+                    "es": "Cómo usar RandomSeat"
+                },
+                "instruction-step1": {
+                    "en": "1. Enter the maximum number of seats in the input box.",
+                    "pl": "1. Wprowadź maksymalną liczbę miejsc w polu wejściowym.",
+                    "de": "1. Geben Sie die maximale Anzahl der Sitze in das Eingabefeld ein.",
+                    "fr": "1. Entrez le nombre maximum de sièges dans la zone de saisie.",
+                    "es": "1. Ingrese el número máximo de asientos en el cuadro de entrada."
+                },
+                "instruction-step2": {
+                    "en": "2. Click the \"Next Draw\" button to draw a seat number. Each drawn seat will be displayed along with the time of the draw.",
+                    "pl": "2. Kliknij przycisk \"Następny los\" aby wylosować numer miejsca. Każde wylosowane miejsce zostanie wyświetlone wraz z czasem losowania.",
+                    "de": "2. Klicken Sie auf die Schaltfläche \"Nächste Ziehung\", um eine Sitznummer zu ziehen. Jeder gezogene Sitz wird zusammen mit der Ziehungszeit angezeigt.",
+                    "fr": "2. Cliquez sur le bouton \"Prochain tirage\" pour tirer un numéro de siège. Chaque siège tiré sera affiché avec l'heure du tirage.",
+                    "es": "2. Haga clic en el botón \"Siguiente sorteo\" para sacar un número de asiento. Cada asiento extraído se mostrará junto con la hora del sorteo."
+                },
+                "instruction-step3": {
+                    "en": "3. Once all seats have been drawn, you will see a message indicating that all seats have been drawn.",
+                    "pl": "3. Po wylosowaniu wszystkich miejsc zobaczysz komunikat informujący o wylosowaniu wszystkich miejsc.",
+                    "de": "3. Sobald alle Sitze gezogen wurden, sehen Sie eine Meldung, dass alle Sitze gezogen wurden.",
+                    "fr": "3. Une fois que tous les sièges ont été tirés, vous verrez un message indiquant que tous les sièges ont été tirés.",
+                    "es": "3. Una vez que se hayan sacado todos los asientos, verá un mensaje que indica que se han sacado todos los asientos."
+                },
+                "instruction-step4": {
+                    "en": "4. You can save the results to a CSV file by clicking the \"Save Results\" button.",
+                    "pl": "4. Możesz zapisać wyniki do pliku CSV, klikając przycisk \"Zapisz wyniki\".",
+                    "de": "4. Sie können die Ergebnisse in einer CSV-Datei speichern, indem Sie auf die Schaltfläche \"Ergebnisse speichern\" klicken.",
+                    "fr": "4. Vous pouvez enregistrer les résultats dans un fichier CSV en cliquant sur le bouton \"Enregistrer les résultats\".",
+                    "es": "4. Puede guardar los resultados en un archivo CSV haciendo clic en el botón \"Guardar resultados\"."
+                },
+                "instruction-step5": {
+                    "en": "5. To reset and start over, click the \"Reset\" button.",
+                    "pl": "5. Aby zresetować i zacząć od nowa, kliknij przycisk \"Reset\".",
+                    "de": "5. Klicken Sie auf die Schaltfläche \"Zurücksetzen\", um den Vorgang zurückzusetzen und neu zu starten.",
+                    "fr": "5. Pour réinitialiser et recommencer, cliquez sur le bouton \"Réinitialiser\".",
+                    "es": "5. Para restablecer y comenzar de nuevo, haga clic en el botón \"Restablecer\"."
+                },
+                "max-seats-label": {
+                    "en": "Maximum Number of Seats:",
+                    "pl": "Maksymalna liczba miejsc:",
+                    "de": "Maximale Anzahl der Sitzplätze:",
+                    "fr": "Nombre maximum de sièges :",
+                    "es": "Número máximo de asientos:"
+                },
+                "draw-button": {
+                    "en": "Next Draw",
+                    "pl": "Następny los",
+                    "de": "Nächste Ziehung",
+                    "fr": "Prochain tirage",
+                    "es": "Siguiente sorteo"
+                },
+                "reset-button": {
+                    "en": "Reset",
+                    "pl": "Reset",
+                    "de": "Zurücksetzen",
+                    "fr": "Réinitialiser",
+                    "es": "Restablecer"
+                },
+                "save-button": {
+                    "en": "Save Results",
+                    "pl": "Zapisz wyniki",
+                    "de": "Ergebnisse speichern",
+                    "fr": "Enregistrer les résultats",
+                    "es": "Guardar resultados"
+                }
+            };
+
+            for (const key in elements) {
+                document.getElementById(key).textContent = elements[key][language];
+            }
+        }
+    </script>
+</body>
+</html>
